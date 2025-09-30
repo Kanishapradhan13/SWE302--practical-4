@@ -213,7 +213,7 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     needs: [test, security]
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
       - name: Checkout code
@@ -241,7 +241,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     needs: [security, container-security]
-    if: failure() && github.event_name != 'pull_request'
+    if: always() && (needs.security.result == 'failure' || needs.container-security.result == 'failure') && github.event_name != 'pull_request'
 
     steps:
       - name: Send security alert
