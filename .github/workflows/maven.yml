@@ -31,3 +31,24 @@ jobs:
         uses: snyk/actions/maven@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  monitor:
+    needs: security
+    name: Monitor project with Snyk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: maven
+      - name: Show JAVA_HOME
+        run: echo $JAVA_HOME
+      - name: Monitor project with Snyk
+        run: |
+          ./mvnw dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml"
+          snyk monitor --all-projects --severity-threshold=medium
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
